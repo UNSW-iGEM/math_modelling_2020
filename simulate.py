@@ -1,12 +1,17 @@
 from model import model
 
-from pysb.simulator import ScipyOdeSimulator
+from pysb.simulator import ScipyOdeSimulator, BngSimulator
 import pylab
+import numpy as np
 
 # time period
 t = pylab.linspace(0, 10000)
 
-simres = ScipyOdeSimulator(model, tspan=t).run()
+# simres = ScipyOdeSimulator(model, tspan=t).run()
+# sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
+sim = BngSimulator(model)
+simres = sim.run(tspan=t, verbose=False, n_runs=1, method='ssa')
+# simres = sim.run(n_runs=2, seed=123456)
 yout = simres.all
 
 pylab.ion()
