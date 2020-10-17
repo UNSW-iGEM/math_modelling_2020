@@ -5,7 +5,7 @@ import pylab
 import numpy as np
 
 # time period
-t = pylab.linspace(0, 10000)
+t = pylab.linspace(0, 10)
 
 # simres = ScipyOdeSimulator(model, tspan=t).run()
 # sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
