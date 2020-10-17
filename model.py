@@ -19,6 +19,12 @@ Monomer('DiH')
 Monomer('TriH')
 Monomer('HSE')
 Monomer('HSE_TriH')
+Monomer('Glutathiione', ['state'], {'state': ['reduced','oxidised']})
+Monomer('sHSP')
+Monomer('MisP_sHSP')
+Monomer('MisP_sHSP_HSP90')
+Monomer('OxyR', ['state', {'active', 'inactive'}])
+Monomer('sHSP_GluE')
 
 # input the parameter values
 Parameter('k1', 10) # mol s^-1
@@ -42,6 +48,19 @@ Parameter('k18', 12)
 Parameter('k19', 0.02)
 Parameter('k20', 0.1)
 Parameter('k21', 0.001)
+# This value still needs to be changed
+Parameter('k22', 0.002)
+Parameter('k23', 50.0)
+Parameter('k24', 10.0)
+Parameter('k25', 50.0)
+Parameter('k26', 5.0)
+Parameter('k27', 10.0)
+Parameter('k28', 20.0)
+Parameter('k29', 10.0)
+Parameter('k30', 10.0)
+Parameter('k31', 5.0)
+Parameter('K32', 20.0)
+
 
 # now input the rules
 # Expression('NatP', k1)
@@ -60,6 +79,17 @@ Rule('ATP_generation', ADP() >> ATP(), k18)
 Rule('cellular_processes', ATP() >> ADP(), k19)
 Rule('ROS_production', None >> ROS(), k20)
 Rule('ROS_scavenged', ROS() >> None, k21)
+# Add on feature beneath
+# Need to combine the 2 reaction later
+Rule('ROS_oxidation', ROS() >> None, k22)
+Rule('ROS_oxidation_2', Glutathiione(state='reduced') >> Glutathiione(state='oxidised'), k22)
+# Rightnow this is assuming no reverse
+# Might change later
+Rule('sHSP_binding', sHSP() + Protein(folding='miss') >> MisP_sHSP, k23)
+Rule('sHSP_fail_to_hold', Mis_P_sHSP() >> AggP(), k24)
+Rule('HSP90_binding_on_MSP_sHSP', HSP90() + MisP_sHSP() | MisP_sHSP_HSP90(), k25, k26)
+Rule('Refolding_with_sHSP', MisP_sHSP_HSP90() >> NatP() + sHSP() + HSP90(), k27)
+Rule('Activation_of_OxyR_by_ROS', )
 
 # initial conditions (parameter + initial)
 Parameter('NatP_0', 6000000)
