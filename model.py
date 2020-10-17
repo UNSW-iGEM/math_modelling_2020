@@ -140,3 +140,6 @@ Observable('obsHSP90', HSP90())
 Observable('obsATP', ATP())
 Observable('obsADP', ADP())
 Observable('obsROS', ROS())
+
+Observable('obssHSP', sHSP())
+Observable('obsGlutathionine', Glutathione())
