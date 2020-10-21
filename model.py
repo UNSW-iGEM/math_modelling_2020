@@ -5,6 +5,8 @@ from pysb import macros
 # instantiate a model
 Model()
 # TODO: protein degradation to the system
+# TODO: Use expression to control a few parameters
+# TODO: Compartmentalization
 
 # declare monomers
 Monomer('Proteins', ['b', 'folding'], {'folding': ['good', 'miss']})
@@ -22,7 +24,7 @@ Monomer('HSF1', ['b', 'b1', 'b2'])
 Monomer('HSE', ['b', 'b1'])
 # Monomer('HSE_TriH')
 Monomer('Glutathione', ['state'], {'state': ['reduced','oxidised']})
-Monomer('sHSP', ['b'])
+Monomer('sHSP', ['b', 'position'], {'position': ['mito', 'non_mito']})
 # Monomer('MisP_sHSP')
 Monomer('MisP_sHSP_HSP90')
 Monomer('OxyR', ['b', 'state'], {'state': ['active', 'inactive']})
@@ -71,7 +73,8 @@ Parameter('k32', 20.0)
 # Might remove this parameter later since this is the reverse
 # of the binding
 Parameter('k33', 25.0)
-Parameter('k34', 0.1)
+# This should be a relatively small value
+Parameter('k34', 0.01)
 
 # now input the rules
 # Expression('NatP', k1)
@@ -87,20 +90,26 @@ Rule('HSP90_HSF1', HSP90(b=None) + HSF1(b=None, b1=None, b2=None) | HSP90(b=1) %
 # macros.assemble_pore_sequential(HSF1, 'b1', 'b2', 3, [[k10, k12], [k11, k13]])
 Rule('Dimerize',
       HSF1(b1=None, b2=None) + HSF1(b1=None, b2=None) |
-          HSF1(b1=None, b2=1) % HSF1(b1=1, b2=None),
+          HSF1(b1=None, b2=1) % HSF1(b1=None, b2=1),
       k10,
       k12)
 Rule('Trimerize',
-      HSF1(b1=None, b2=None) + HSF1(b1=None, b2=1) % HSF1(b1=1, b2=None) |
+      HSF1(b1=None, b2=None) + HSF1(b1=None, b2=1) % HSF1(b1=None, b2=1) |
           HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1),
       k11,
       k13)
 # Rule('Trimerisation', HSF1(b=None) + HSF1(b=1) % HSF1(b=1) | HSF1(b=2) % HSF1(b=1) % HSF1(b=1), k11, k13)
 Rule('DNA_binding', HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1) + HSE(b1=None) | HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=3, b2=1) % HSE(b1=3), k14, k15)
-# Assuming the transcription factor get of DNA after transcription
+# Assuming the transcription factor get of DNA after transcription & None basal Expression
+# Try 2 different ways see if there is any difference
 Rule('Transcription_Translation', HSF1(b1=2) % HSF1(b1=2, b2=1) % HSF1(b1=3, b2=1) % HSE(b1=3) >> HSF1(b=None, b1=None, b2=None) + HSF1(b=None, b1=None, b2=None) + HSF1(b=None, b1=None, b2=None) + HSE(b=None, b1=None) + HSP90(b=None), k16)
 
-Rule('Degrades', HSP90(b=None) + ATP() >> ADP(), k17)
+# TODO: Check which protein should be included in the degration part
+# TODO: How to add stoichiometry to the rules
+Rule('Degrades', HSP90(b=None) + ATP() + ATP() >> ADP(), k17)
+# sHSP in both position gets degraded
+Rule('Degrades_2', sHSP(b=None, position='mito') + ATP() >> ADP(), k17)
+# Rule('Degrades', HSP90(b=None) + ATP() >> ADP(), k17)
 Rule('ATP_generation', ADP() >> ATP(), k18)
 Rule('cellular_processes', ATP() >> ADP(), k19)
 Rule('ROS_production', None >> ROS(), k20)
@@ -112,14 +121,16 @@ Rule('Glutathione_reduction', Glutathione(state='oxidised') >> Glutathione(state
 # Rule('ROS_oxidation_2',  >> , k22)
 # Rightnow this is assuming no reverse
 # Might change later
-Rule('sHSP_binding', sHSP(b=None) + Proteins(folding='miss') >> sHSP(b=None) % Proteins(folding='miss'), k23)
-Rule('sHSP_fail_to_hold', sHSP(b=None) % Proteins(folding='miss') >> AggP(), k24)
-Rule('HSP90_binding_on_MSP_sHSP', HSP90(b=None) + (sHSP(b=None) % Proteins(b=None, folding='miss')) | HSP90(b=None) % sHSP(b=None) % Proteins(b=None, folding='miss'), k25, k26)
-Rule('Refolding_with_sHSP', HSP90(b=None) % sHSP(b=None) % Proteins(b=None, folding='miss') >> Proteins(b=None, folding='good') + sHSP(b=None) + HSP90(b=None), k27)
+Rule('sHSP_binding', sHSP(b=None, position='mito') + Proteins(folding='miss') >> sHSP(b=None, position='mito') % Proteins(folding='miss'), k23)
+Rule('sHSP_fail_to_hold', sHSP(b=None, position='mito') % Proteins(folding='miss') >> AggP(), k24)
+Rule('HSP90_binding_on_MSP_sHSP', HSP90(b=None) + (sHSP(b=None, position='mito') % Proteins(b=None, folding='miss')) | HSP90(b=None) % sHSP(b=None, position='mito') % Proteins(b=None, folding='miss'), k25, k26)
+Rule('Refolding_with_sHSP', HSP90(b=None) % sHSP(b=None, position='mito') % Proteins(b=None, folding='miss') >> Proteins(b=None, folding='good') + sHSP(b=None, position='mito') + HSP90(b=None), k27)
 Rule('Activation_of_OxyR_by_ROS', OxyR(state='inactive') + ROS() >> OxyR(state='active') + ROS() ,k28)
 # Subject to change with the addition of hill's equation
 Rule('Active_OxyR_binding_DNA', OxyR(state='active') + sHSP_GluE() | OxyR(state='active') % sHSP_GluE() ,k32, k33)
-Rule('sHSP_synthesis_from_DNA', sHSP_GluE() >> sHSP_GluE() + sHSP(b=None), k29)
+Rule('sHSP_synthesis_from_DNA', sHSP_GluE() >> sHSP_GluE() + sHSP(b=None, position='non_mito'), k29)
+# TODO: Make another paramter for the transfer later
+Rule('sHSP_transfer', sHSP(b=None, position='non_mito') >> sHSP(b=None, position='mito'), k29)
 Rule('Glutathione_Synthetase_synthesis_from_DNA', sHSP_GluE() >> sHSP_GluE() + Glu_synthetase(), k30)
 Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state='reduced'), k31)
 
@@ -141,7 +152,7 @@ Parameter('HSE_0', 1)
 Initial(HSE(b=None, b1=None), HSE_0)
 # sHSP + Glu + sHSP_GluE + OxyR
 Parameter('sHSP_0', 2000)
-Initial(sHSP(b=None), sHSP_0)
+Initial(sHSP(b=None, position='mito'), sHSP_0)
 Parameter('Glutathione_0', 2000)
 Initial(Glutathione(state='reduced'), Glutathione_0)
 Initial(Glutathione(state='oxidised'), Glutathione_0)
@@ -163,7 +174,7 @@ Observable('obsATP', ATP())
 Observable('obsADP', ADP())
 Observable('obsROS', ROS())
 
-Observable('obssHSP', sHSP(b=None))
+Observable('obssHSP', sHSP(b=None, position='mito'))
 Observable('obsMisP_sHSP', sHSP(b=1) % Proteins(b=1,folding='miss'))
 Observable('obsMisP_sHSP_HSP90', HSP90() % sHSP(b=1) % Proteins(b=1, folding='miss'))
 Observable('obsGlutathionine', Glutathione(state='oxidised'))
