@@ -81,12 +81,12 @@ Parameter('k16', 1000)
 Parameter('k17', 8.02*10**-9)
 Parameter('k18', 12)
 Parameter('k19', 0.02)
-# Parameter('k20', 0.1)
+Parameter('k20', 0.1)
 #####################################################
 # TODO: CHECK What is happening with the Expression##
 Observable('ROS_total', ROS())
-Parameter('m', 2)
-Expression('k20', (ROS_total * m))
+# Parameter('m', 2)
+# Expression('k20', (ROS_total * m))
 #####################################################
 Parameter('k21', 0.001)
 # This value still needs to be changed
