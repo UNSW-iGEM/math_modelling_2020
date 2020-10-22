@@ -6,7 +6,6 @@ from pysb import macros
 Model()
 # TODO: protein degradation to the system
 # TODO: Use expression to control a few parameters
-# TODO: Compartmentalization
 
 # declare monomers
 Monomer('Proteins', ['b', 'folding'], {'folding': ['good', 'miss']})
@@ -36,6 +35,32 @@ Monomer('sHSP_GluE')
 # Might need this or might not
 # Monomer('Glutathione_reductase')
 
+# initial conditions (parameter + initial)
+Parameter('NatP_0', 6000000)
+Initial(Proteins(b=None,folding='good'), NatP_0)
+Parameter('HSP90_0', 5900)
+Initial(HSP90(b=None), HSP90_0)
+Parameter('HSF1_0', 100)
+Initial(HSF1(b=None, b1=None, b2=None), HSF1_0)
+Parameter('ROS_0', 100)
+Initial(ROS(), ROS_0)
+Parameter('ATP_0', 10000)
+Initial(ATP(), ATP_0)
+Parameter('ADP_0', 1000)
+Initial(ADP(), ADP_0)
+Parameter('HSE_0', 1)
+Initial(HSE(b=None, b1=None), HSE_0)
+# sHSP + Glu + sHSP_GluE + OxyR
+Parameter('sHSP_0', 2000)
+Initial(sHSP(b=None, position='mito'), sHSP_0)
+Parameter('Glutathione_0', 2000)
+Initial(Glutathione(state='reduced'), Glutathione_0)
+Initial(Glutathione(state='oxidised'), Glutathione_0)
+Parameter('sHSP_GluE_0', 2)
+Initial(sHSP_GluE(), sHSP_GluE_0)
+Parameter('OxyR_0', 2000)
+Initial(OxyR(b=None, state='inactive'), OxyR_0)
+
 # input the parameter values
 Parameter('k1', 10) # mol s^-1
 Parameter('k2', 0.00002) # mol^-1 s^-1
@@ -56,7 +81,13 @@ Parameter('k16', 1000)
 Parameter('k17', 8.02*10**-9)
 Parameter('k18', 12)
 Parameter('k19', 0.02)
-Parameter('k20', 0.1)
+# Parameter('k20', 0.1)
+#####################################################
+# TODO: CHECK What is happening with the Expression##
+Observable('ROS_total', ROS())
+Parameter('m', 2)
+Expression('k20', (ROS_total * m))
+#####################################################
 Parameter('k21', 0.001)
 # This value still needs to be changed
 Parameter('k22', 20)
@@ -135,31 +166,6 @@ Rule('Glutathione_Synthetase_synthesis_from_DNA', sHSP_GluE() >> sHSP_GluE() + G
 Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state='reduced'), k31)
 
 
-# initial conditions (parameter + initial)
-Parameter('NatP_0', 6000000)
-Initial(Proteins(b=None,folding='good'), NatP_0)
-Parameter('HSP90_0', 5900)
-Initial(HSP90(b=None), HSP90_0)
-Parameter('HSF1_0', 100)
-Initial(HSF1(b=None, b1=None, b2=None), HSF1_0)
-Parameter('ROS_0', 100)
-Initial(ROS(), ROS_0)
-Parameter('ATP_0', 10000)
-Initial(ATP(), ATP_0)
-Parameter('ADP_0', 1000)
-Initial(ADP(), ADP_0)
-Parameter('HSE_0', 1)
-Initial(HSE(b=None, b1=None), HSE_0)
-# sHSP + Glu + sHSP_GluE + OxyR
-Parameter('sHSP_0', 2000)
-Initial(sHSP(b=None, position='mito'), sHSP_0)
-Parameter('Glutathione_0', 2000)
-Initial(Glutathione(state='reduced'), Glutathione_0)
-Initial(Glutathione(state='oxidised'), Glutathione_0)
-Parameter('sHSP_GluE_0', 2)
-Initial(sHSP_GluE(), sHSP_GluE_0)
-Parameter('OxyR_0', 2000)
-Initial(OxyR(b=None, state='inactive'), OxyR_0)
 
 
 
