@@ -10,7 +10,7 @@ t = np.linspace(0, 10)
 # simres = ScipyOdeSimulator(model, tspan=t).run()
 # sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
 sim = BngSimulator(model)
-simres = sim.run(tspan=t, verbose=False, n_runs=1, method='ssa')
+simres = sim.run(tspan=t, verbose=False)
 # simres = sim.run(n_runs=2, seed=123456)
 yout = simres.all
 

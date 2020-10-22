@@ -1,3 +1,4 @@
 *.png
+*.pdf
 .vscode
 __pycache__
