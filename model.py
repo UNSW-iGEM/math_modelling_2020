@@ -3,8 +3,8 @@ from pysb import *
 from pysb import macros
 import numpy as np
 from pysb.simulator import ScipyOdeSimulator, BngSimulator
-import matplotlib.pyplot as plt/Newcastle logo
-
+import matplotlib.pyplot as plt
+from pysb.simulator.base import SimulationResult
 
 # instantiate a model
 Model()
@@ -44,7 +44,7 @@ Parameter('NatP_0', 6000000)
 Initial(Proteins(b=None,folding='good'), NatP_0)
 Parameter('HSP90_0', 5900)
 Initial(HSP90(b=None), HSP90_0)
-Parameter('HSF1_0', 100)/Newcastle logo
+Parameter('HSF1_0', 100)
 Initial(HSF1(b=None, b1=None, b2=None), HSF1_0)
 Parameter('ROS_0', 100)
 Initial(ROS(), ROS_0)
@@ -88,7 +88,7 @@ Parameter('k19', 0.02)
 Parameter('k20', 0.1)
 #####################################################
 # TODO: CHECK What is happening with the Expression##
-Observable('ROS_total', ROS())
+# Observable('ROS_total', ROS())
 # Parameter('m', 2)
 # Expression('k20', (ROS_total * m))
 #####################################################
@@ -169,41 +169,69 @@ Rule('sHSP_transfer', sHSP(b=None, position='non_mito') >> sHSP(b=None, position
 Rule('Glutathione_Synthetase_synthesis_from_DNA', sHSP_GluE() >> sHSP_GluE() + Glu_synthetase(), k30)
 Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state='reduced'), k31)
 
-
-
-
-
 # Observables
 Observable('NatP', Proteins(folding='good'))
-Observable('MisP', Proteins(folding='miss'))/Newcastle logo)
+Observable('MisP', Proteins(folding='miss'))
+Observable('obsMCom', Proteins(folding='miss') % HSP90())
+Observable('obsAggP', AggP())
+Observable('obsHSP90', HSP90())
+# total hsp90
+Observable('obsATP', ATP())
+Observable('obsADP', ADP())
+Observable('obsROS', ROS())
+
+Observable('obssHSP', sHSP(b=None, position='mito'))
+Observable('obsMisP_sHSP', sHSP(b=1) % Proteins(b=1,folding='miss'))
+Observable('obsMisP_sHSP_HSP90', HSP90() % sHSP(b=1) % Proteins(b=1, folding='miss'))
+Observable('obsGlutathionine', Glutathione(state='oxidised'))
+
+#    _____ _                 _       _   _
+#   / ____(_)               | |     | | (_)
+#  | (___  _ _ __ ___  _   _| | __ _| |_ _  ___  _ __
+#   \___ \| | '_ ` _ \| | | | |/ _` | __| |/ _ \| '_ \
+#   ____) | | | | | | | |_| | | (_| | |_| | (_) | | | |
+#  |_____/|_|_| |_| |_|\__,_|_|\__,_|\__|_|\___/|_| |_|
+
 # sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
-sim = BngSimulator(model)
-simres = sim.run(tspan=t, verbose=False, initials={ATP(): 0})
+t=np.linspace(0,100)
+simulationResult = BngSimulator(model).run(tspan=t, verbose=False, initials={ATP(): 0})
 
-yout = simres.all
+fig, axs = plt.subplots(2, 1)
 
-fig, axs = plt.subplots(3, 1)
+for name in simulationResult.observables.dtype.names:
+    data = simulationResult.all[name]
+    axis = 0 if data[0] > 10**3 else 1
 
-axs[0].plot(t, yout['NatP'], label="NatP")
-axs[0].plot(t, yout['MisP'], label="MisP")
-axs[0].plot(t, yout['obsMCom'], label="MisP/Hsp90 complex")
-axs[0].plot(t, yout['obsAggP'], label="AggP")
-axs[0].plot(t, yout['obsHSP90'], label="HSP90")
+    # print(name, simulationResult.all[name])
+    axs[axis].plot(t, simulationResult.all[name], label=name)
+
+# axs[0].yscale('linear')
 axs[0].legend()
-axs[0].set_xlabel("Time (s)")
-axs[0].set_ylabel("Number of Molecules")
-
-axs[1].plot(t, yout['obsATP'], label="ATP")
-axs[1].plot(t, yout['obsADP'], label="ADP")
-axs[1].plot(t, yout['obsROS'], label="ROS")
 axs[1].legend()
-axs[1].set_xlabel("Time (s)")
-axs[1].set_ylabel("Number of Molecules")
-# axs[1].savefig('b.png')
+# for name, observable in simulationResult.observables.items():
+#     print(observable)
+#     print(simulationResult.all['NatP'])
 
-axs[2].plot(t, yout['obssHSP'], label="sHSP")
-axs[2].plot(t, yout['obsGlutathionine'], label="Glutathionine")
-axs[2].legend()
+# axs[0].plot(t, yout['NatP'], label="NatP")
+# axs[0].plot(t, yout['MisP'], label="MisP")
+# # axs[0].plot(t, yout['obsMCom'], label="MisP/Hsp90 complex")
+# # axs[0].plot(t, yout['obsAggP'], label="AggP")
+# # axs[0].plot(t, yout['obsHSP90'], label="HSP90")
+# axs[0].legend()
+# axs[0].set_xlabel("Time (s)")
+# axs[0].set_ylabel("Number of Molecules")
+
+# axs[1].plot(t, yout['obsATP'], label="ATP")
+# axs[1].plot(t, yout['obsADP'], label="ADP")
+# axs[1].plot(t, yout['obsROS'], label="ROS")
+# axs[1].legend()
+# axs[1].set_xlabel("Time (s)")
+# axs[1].set_ylabel("Number of Molecules")
+# # axs[1].savefig('b.png')
+
+# axs[2].plot(t, yout['obssHSP'], label="sHSP")
+# axs[2].plot(t, yout['obsGlutathionine'], label="Glutathionine")
+# axs[2].legend()
 
 
 fig.savefig('graph.png')
