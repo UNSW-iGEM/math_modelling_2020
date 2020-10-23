@@ -23,7 +23,7 @@ Parameter('HSP90_0', 5900)
 Initial(HSP90(b=None, Hbind=None), HSP90_0)
 Parameter('HSF1_0', 100)
 Initial(HSF1(b=None, b1=None, b2=None), HSF1_0)
-Parameter('ROS_0', 100)
+Parameter('ROS_0', 1000)
 Initial(ROS(), ROS_0)
 Parameter('ATP_0', 10000)
 Initial(ATP(), ATP_0)
@@ -53,9 +53,8 @@ Parameter('k16', 1000)
 Parameter('k17', 8.02*10**-9)
 Parameter('k18', 12)
 Parameter('k19', 0.02)
-Parameter('k20', 0.1)
+Parameter('k20', 2000)
 Parameter('k21', 0.001)
-# This value still needs to be changed
 
 # Expending energy to make proteins
 Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good') + ADP(), k1)
@@ -85,8 +84,6 @@ Rule('Degrades', HSP90(b=None, Hbind=None) + ATP() + ATP() >> ADP() + ADP(), k17
 Rule('ATP_generation', ADP() >> ATP(), k18)
 Rule('cellular_processes', ATP() >> ADP(), k19)
 Rule('ROS_production', None >> ROS(), k20)
-Rule('ROS_scavenged', ROS() >> None, k21)
-
 
 # Observables
 Observable('NatP', Proteins(folding='good'))
