@@ -67,6 +67,7 @@ Initial(OxyR(DNA=None, state='inactive'), OxyR_0)
 # TODO: Every Reaction that synthesize protein needs to expend ATP
 # TODO: Do we need to add OxyR production in the model as well
 
+
 Parameter('k1', 10) # mol s^-1
 Rule('Protein_Sythesis', None >> Proteins(b=None, Hbind=None, folding='good'), k1)
 Parameter('k2', 0.00002) # mol^-1 s^-1
@@ -190,6 +191,22 @@ Observable('MCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbi
 t = np.linspace(0, 100)
 fig, axs = plt.subplots(1, 1)
 methods = ['ssa']
+
+def tempValues(magnitude = 1):
+    # varies temperature values by orders of magnitude
+    # wiki writeup has justificatatin for these changes
+
+    # first number is normal value, second number is whether they go up or not
+    values = {
+        'k1': [10, -1],
+        'k6': [6*10**-7, 1],
+        'k20': [0.1, 1],
+        'k29': [10.0, 1],
+        'k30': [10.0, 1],
+    }
+    return {key: value[0]*10**(magnitude*value[1]) for key, value in values.items()}
+
+print(tempValues(1))
 # try different simulate methods
 # try different values of k20 (temp)
 # try different values of protein synthesis
