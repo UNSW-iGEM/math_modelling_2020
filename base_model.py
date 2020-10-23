@@ -57,11 +57,6 @@ Parameter('k20', 0.1)
 Parameter('k21', 0.001)
 # This value still needs to be changed
 
-# now input the rules
-# Expression('NatP', k1)
-# TODO: Every Reaction that synthesize protein needs to expend ATP
-# TODO: Do we need to add OxyR production in the model as well
-
 # Expending energy to make proteins
 Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good'), k1)
 Rule('Misfolding', Proteins(b=None, Hbind=None, folding='good') + ROS() >> Proteins(b=None, Hbind=None, folding='miss') + ROS(), k2)
