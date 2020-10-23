@@ -58,11 +58,11 @@ Parameter('k21', 0.001)
 # This value still needs to be changed
 
 # Expending energy to make proteins
-Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good'), k1)
+Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good') + ADP(), k1)
 Rule('Misfolding', Proteins(b=None, Hbind=None, folding='good') + ROS() >> Proteins(b=None, Hbind=None, folding='miss') + ROS(), k2)
 Rule('HSP90_MisP', Proteins(b=None, Hbind=None, folding='miss') + HSP90(b=None, Hbind=None) | Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1), k3, k4)
 Rule('Refolding', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1) + ATP() >> Proteins(b=None, Hbind=None, folding='good') + HSP90(b=None, Hbind=None) + ADP(), k5)
-Rule('Protein_degradation', Proteins(folding='miss') + ATP() >> None, k6)
+Rule('Protein_degradation', Proteins(folding='miss') + ATP() >> ADP(), k6)
 Rule('Aggregation', Proteins(b=None, folding='miss') + Proteins(b=None, folding='miss') >> AggP(), k7)
 Rule('HSP90_HSF1', HSP90(b=None, Hbind=None) + HSF1(b=None, b1=None, b2=None) | HSP90(b=1, Hbind=None) % HSF1(b=1, b1=None, b2=None), k8, k9)
 Rule('Dimerize',
