@@ -162,25 +162,22 @@ Parameter('k31', 5.0)
 Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state='reduced'), k31)
 
 
-
-
-
 # Observables
 Observable('NatP', Proteins(folding='good'))
-Observable('MisP', Proteins(folding='miss'))
-Observable('obsMCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1))
-Observable('obsAggP', AggP())
-Observable('obsHSP90', HSP90())
-# total hsp90
-Observable('obsATP', ATP())
-Observable('obsADP', ADP())
-Observable('obsROS', ROS())
+Observable('MisP', Proteins(b=None, Hbind=None, folding='miss'))
+Observable('MCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1))
+# Observable('obsAggP', AggP())
+# Observable('obsHSP90', HSP90())
+# # total hsp90
+# Observable('obsATP', ATP())
+# Observable('obsADP', ADP())
+# Observable('obsROS', ROS())
 
-Observable('obssHSP', sHSP(b=None, position='mito'))
-Observable('obsMisP_sHSP', sHSP(b=1) % Proteins(b=1, folding='miss'))
-Observable('obsMisP_sHSP_HSP90', HSP90() %
-           sHSP(b=1) % Proteins(b=1, folding='miss'))
-Observable('obsGlutathionine', Glutathione(state='oxidised'))
+# Observable('obssHSP', sHSP(b=None, position='mito'))
+# Observable('obsMisP_sHSP', sHSP(b=1) % Proteins(b=1, folding='miss'))
+# Observable('obsMisP_sHSP_HSP90', HSP90() %
+#            sHSP(b=1) % Proteins(b=1, folding='miss'))
+# Observable('obsGlutathionine', Glutathione(state='oxidised'))
 
 #    _____ _                 _       _   _
 #   / ____(_)               | |     | | (_)
@@ -191,52 +188,36 @@ Observable('obsGlutathionine', Glutathione(state='oxidised'))
 
 # sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
 t = np.linspace(0, 100)
+fig, axs = plt.subplots(1, 1)
+methods = ['ssa']
+# try different simulate methods
+# try different values of k20 (temp)
+# try different values of protein synthesis
+# try different amounts of sHSP production
+# try
+# try with glutathionine enabled
+# try with
+for trial, method in enumerate(methods):
+    # test without glutathionine and sHSP enabled
+    simulationResult = BngSimulator(model).run(
+        tspan=t,
+        verbose=False,
+        # initials={Glutathione(state='reduced'): 0},
+        method=method
+    )
 
+    print(simulationResult.observables.dtype.names)
+    for name in simulationResult.observables.dtype.names:
+        data = simulationResult.all[name]
+        # axis = 0 if data[0] > 10**3 else 1
 
-# test without glutathionine and sHSP enabled
-simulationResult = BngSimulator(model).run(
-    tspan=t,
-    verbose=False,
-    initials={Glutathionine(): 0},
-    param_values={}
-)
+        axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name}')
 
-fig, axs = plt.subplots(2, 1)
-
-for name in simulationResult.observables.dtype.names:
-    data = simulationResult.all[name]
-    axis = 0 if data[0] > 10**3 else 1
-
-    # print(name, simulationResult.all[name])
-    axs[axis].plot(t, simulationResult.all[name], label=name)
-
-# axs[0].yscale('linear')
-axs[0].legend()
-axs[1].legend()
-# for name, observable in simulationResult.observables.items():
-#     print(observable)
-#     print(simulationResult.all['NatP'])
-
-# axs[0].plot(t, yout['NatP'], label="NatP")
-# axs[0].plot(t, yout['MisP'], label="MisP")
-# # axs[0].plot(t, yout['obsMCom'], label="MisP/Hsp90 complex")
-# # axs[0].plot(t, yout['obsAggP'], label="AggP")
-# # axs[0].plot(t, yout['obsHSP90'], label="HSP90")
-# axs[0].legend()
-# axs[0].set_xlabel("Time (s)")
-# axs[0].set_ylabel("Number of Molecules")
-
-# axs[1].plot(t, yout['obsATP'], label="ATP")
-# axs[1].plot(t, yout['obsADP'], label="ADP")
-# axs[1].plot(t, yout['obsROS'], label="ROS")
+for i in range(0,1):
+    axs.set_xlabel('Time in seconds')
+    axs.set_ylabel('Number of molecules')
+# axs[0].set_ylim(ymin=0, ymax=10**7)
+axs.legend()
 # axs[1].legend()
-# axs[1].set_xlabel("Time (s)")
-# axs[1].set_ylabel("Number of Molecules")
-# # axs[1].savefig('b.png')
 
-# axs[2].plot(t, yout['obssHSP'], label="sHSP")
-# axs[2].plot(t, yout['obsGlutathionine'], label="Glutathionine")
-# axs[2].legend()
-
-
-fig.savefig('graph.png')
+fig.savefig('graphs/graph.png')
