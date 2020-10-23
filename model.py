@@ -206,7 +206,6 @@ for trial, method in enumerate(methods):
         method=method
     )
 
-    print(simulationResult.observables.dtype.names)
     for name in simulationResult.observables.dtype.names:
         data = simulationResult.all[name]
         # axis = 0 if data[0] > 10**3 else 1
@@ -220,4 +219,4 @@ for i in range(0,1):
 axs.legend()
 # axs[1].legend()
 
-fig.savefig('graphs/graph.png')
+fig.savefig('export/graph.png')
