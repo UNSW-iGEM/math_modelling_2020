@@ -1,10 +1,7 @@
+from util import *
+
 # import the pysb module and all its methods and functions
 from pysb import *
-from pysb import macros
-import numpy as np
-from pysb.simulator import ScipyOdeSimulator, BngSimulator
-import matplotlib.pyplot as plt
-from pysb.simulator.base import SimulationResult
 
 # instantiate a model
 Model()
@@ -61,11 +58,6 @@ Initial(OxyR(DNA=None, state='inactive'), OxyR_0)
 # now input the rules
 # TODO: Every Reaction that synthesize protein needs to expend ATP
 # TODO: Do we need to add OxyR production in the model as well
-<<<<<<< HEAD
-
-
-=======
->>>>>>> master
 Parameter('k1', 10) # mol s^-1
 Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good') + ADP(), k1)
 Parameter('k2', 0.00002) # mol^-1 s^-1
@@ -96,18 +88,10 @@ Rule('Dimerize',
 Parameter('k11', 100)
 Parameter('k13', 0.5)
 Rule('Trimerize',
-<<<<<<< HEAD
-     HSF1(b1=None, b2=None) + HSF1(b1=None, b2=1) % HSF1(b1=None, b2=1) |
-     HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1),
-     k11,
-     k13)
-# Rule('Trimerisation', HSF1(b=None) + HSF1(b=1) % HSF1(b=1) | HSF1(b=2) % HSF1(b=1) % HSF1(b=1), k11, k13)
-=======
       HSF1(b1=None, b2=None) + HSF1(b1=None, b2=1) % HSF1(b1=None, b2=1) |
           HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1),
       k11,
       k13)
->>>>>>> master
 Parameter('k14', 0.05)
 Parameter('k15', 0.08)
 Rule('DNA_binding', HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1) + HSE(b1=None) |
@@ -136,7 +120,7 @@ Rule('ROS_scavenged', ROS() >> None, k21)
 # Using the same k17 value as the HSP90 degradation
 Rule('Degrades_2', sHSP(b=None, position='mito') + ATP() >> ADP(), k17)
 Rule('Degrades_3', OxyR() + ATP() >> ADP(), k17)
-Rule('Degrades_4', Glu_synthetase + ATP() >> ADP(), k17)
+Rule('Degrades_4', Glu_synthetase() + ATP() >> ADP(), k17)
 Parameter('k22', 20)
 Rule('ROS_oxidation', ROS() + Glutathione(state='reduced') >> Glutathione(state='oxidised'), k22)
 Parameter('k34', 0.01)
@@ -173,9 +157,9 @@ Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state=
 
 
 # Observables
-Observable('NatP', Proteins(folding='good'))
-Observable('MisP', Proteins(b=None, Hbind=None, folding='miss'))
-Observable('MCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1))
+# Observable('NatP', Proteins(folding='good'))
+# Observable('MisP', Proteins(b=None, Hbind=None, folding='miss'))
+# Observable('MCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1))
 # Observable('obsAggP', AggP())
 # Observable('obsHSP90', HSP90())
 # # total hsp90
@@ -197,9 +181,6 @@ Observable('MCom', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbi
 #  |_____/|_|_| |_| |_|\__,_|_|\__,_|\__|_|\___/|_| |_|
 
 # sim = StochKitSimulator(model, tspan=np.linspace(0, 10, 5))sim = BngSimulator(model)
-t = np.linspace(0, 100)
-fig, axs = plt.subplots(1, 1)
-methods = ['ssa']
 ###########################################################################################################
 
 # try different simulate methods
@@ -209,45 +190,11 @@ methods = ['ssa']
 # try
 # try with glutathionine enabled
 # try with
-print(model)
-# produceGraph(model, 'deterministic vs stochastic')
 
-
-def tempValues(magnitude = 1):
-    # varies temperature values by orders of magnitude
-    # wiki writeup has justificatatin for these changes
-
-    # first number is normal value, second number is whether they go up or not
-    values = {
-        'k1': [10, -1],
-        'k6': [6*10**-7, 1],
-        'k20': [0.1, 1],
-        'k29': [10.0, 1],
-        'k30': [10.0, 1],
-    }
-    return {key: value[0]*10**(magnitude*value[1]) for key, value in values.items()}
-
-def produceGraph(model, filename, methods = ['ode', 'ssa']):
-    for trial, method in enumerate(methods):
-    # test without glutathionine and sHSP enabled
-        simulationResult = BngSimulator(model).run(
-            tspan=t,
-            verbose=False,
-            # initials={Glutathione(state='reduced'): 0},
-            method=method
-        )
-
-        for name in simulationResult.observables.dtype.names:
-            data = simulationResult.all[name]
-            # axis = 0 if data[0] > 10**3 else 1
-
-            axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name}')
-
-    for i in range(0,1):
-        axs.set_xlabel('Time in seconds')
-        axs.set_ylabel('Number of molecules')
-    # axs[0].set_ylim(ymin=0, ymax=10**7)
-    axs.legend()
-    # axs[1].legend()
-
-    fig.savefig('export/graph.png')
+# give a list of all the reactions you want to graph
+# a list of inital conditions, will use default if not present
+# a list of parameter (k) values
+#
+model.add_component(Observable('obsNatP', model.monomers['Proteins'](folding='good')))
+print()
+produceGraph(model, 'deterministic vs stochastic', ['ode'], {}, {})
