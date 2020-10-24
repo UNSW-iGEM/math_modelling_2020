@@ -202,6 +202,17 @@ fig, axs = plt.subplots(1, 1)
 methods = ['ssa']
 ###########################################################################################################
 
+# try different simulate methods
+# try different values of k20 (temp)
+# try different values of protein synthesis
+# try different amounts of sHSP production
+# try
+# try with glutathionine enabled
+# try with
+print(model)
+# produceGraph(model, 'deterministic vs stochastic')
+
+
 def tempValues(magnitude = 1):
     # varies temperature values by orders of magnitude
     # wiki writeup has justificatatin for these changes
@@ -216,34 +227,27 @@ def tempValues(magnitude = 1):
     }
     return {key: value[0]*10**(magnitude*value[1]) for key, value in values.items()}
 
-print(tempValues(1))
-# try different simulate methods
-# try different values of k20 (temp)
-# try different values of protein synthesis
-# try different amounts of sHSP production
-# try
-# try with glutathionine enabled
-# try with
-for trial, method in enumerate(methods):
+def produceGraph(model, filename, methods = ['ode', 'ssa']):
+    for trial, method in enumerate(methods):
     # test without glutathionine and sHSP enabled
-    simulationResult = BngSimulator(model).run(
-        tspan=t,
-        verbose=False,
-        # initials={Glutathione(state='reduced'): 0},
-        method=method
-    )
+        simulationResult = BngSimulator(model).run(
+            tspan=t,
+            verbose=False,
+            # initials={Glutathione(state='reduced'): 0},
+            method=method
+        )
 
-    for name in simulationResult.observables.dtype.names:
-        data = simulationResult.all[name]
-        # axis = 0 if data[0] > 10**3 else 1
+        for name in simulationResult.observables.dtype.names:
+            data = simulationResult.all[name]
+            # axis = 0 if data[0] > 10**3 else 1
 
-        axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name}')
+            axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name}')
 
-for i in range(0,1):
-    axs.set_xlabel('Time in seconds')
-    axs.set_ylabel('Number of molecules')
-# axs[0].set_ylim(ymin=0, ymax=10**7)
-axs.legend()
-# axs[1].legend()
+    for i in range(0,1):
+        axs.set_xlabel('Time in seconds')
+        axs.set_ylabel('Number of molecules')
+    # axs[0].set_ylim(ymin=0, ymax=10**7)
+    axs.legend()
+    # axs[1].legend()
 
-fig.savefig('export/graph.png')
+    fig.savefig('export/graph.png')
