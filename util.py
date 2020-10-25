@@ -1,4 +1,5 @@
-from pysb.simulator import ScipyOdeSimulator, BngSimulator
+from pysb import *
+from pysb.simulator import BngSimulator
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -16,23 +17,26 @@ def tempValues(magnitude = 1):
     }
     return {key: value[0]*10**(magnitude*value[1]) for key, value in values.items()}
 
-def produceGraph(model, filename, methods, initials, parameters):
+def produceGraph(model, filename, methods, observe, parameters):
+    # make a graph
+    # parameters is list will run multiple times and put them on the same graph
+
+    for name, monomer in observe.items():
+        model.add_component(Observable(f'obs{name}', monomer))
     t = np.linspace(0, 100)
     fig, axs = plt.subplots(1, 1)
-    for trial, method in enumerate(methods):
-    # test without glutathionine and sHSP enabled
-        simulationResult = BngSimulator(model).run(
-            tspan=t,
-            verbose=False,
-            # initials={Glutathione(state='reduced'): 0},
-            method=method
-        )
 
-        for name in simulationResult.observables.dtype.names:
-            data = simulationResult.all[name]
-            # axis = 0 if data[0] > 10**3 else 1
+    for i, parameter_set in enumerate(parameters):
+        for method in methods:
+        # test without glutathionine and sHSP enabled
+            simulationResult = BngSimulator(model).run(
+                tspan=t,
+                method=method,
+                param_values=parameter_set
+            )
 
-            axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name}')
+            for name in simulationResult.observables.dtype.names:
+                axs.plot(t, simulationResult.all[name], label=f'{method.upper()} {name} {i}')
 
     for i in range(0,1):
         axs.set_xlabel('Time in seconds')
