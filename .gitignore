@@ -1,3 +1,6 @@
 *.png
+*.pdf
+*.dot
+*.zip
 .vscode
 __pycache__
