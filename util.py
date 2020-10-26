@@ -33,6 +33,10 @@ def produceGraph(model, filename, methods, observe, parameters):
     t = np.linspace(0, 100)
     graphs = len(observe)
     fig, axs = plt.subplots(graphs, 1)
+
+    # hack for when there is only one subplot
+    if graphs == 1:
+        axs = [axs]
     for i, parameter_set in enumerate(parameters):
         for method in methods:
         # test without glutathionine and sHSP enabled

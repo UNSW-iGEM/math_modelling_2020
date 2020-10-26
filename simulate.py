@@ -1,4 +1,5 @@
-from model import model
+from model import *
+from util import produceGraph
 
 produceGraph(
     model,
@@ -8,11 +9,10 @@ produceGraph(
     [tempValues(-1), tempValues(0), tempValues(1), tempValues(2)]
 )
 
-# model = model.reload()
 produceGraph(
     model,
     'no atp',
     ['ode'],
-    [{'NaturalProteins': Proteins(folding='good')}, {'ATP': ATP()}],
+    [{'ATP': ATP()}],
     [{'ATP_0': 0}]
 )
