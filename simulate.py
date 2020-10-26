@@ -1,3 +1,5 @@
+from model import model
+
 produceGraph(
     model,
     'temperature comparison',
