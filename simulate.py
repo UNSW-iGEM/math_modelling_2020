@@ -5,7 +5,7 @@ from util import produceGraph
 #     model,
 #     'temperature comparison',
 #     ['ode'],
-#     [{'NaturalProteins': Proteins(folding='good')}, {'ATP': ATP()}, {}],
+#     [{'NaturalProteins': Proteins(folding='good')}, {'ATP': ATP()}],
 #     [tempValues(-1), tempValues(0), tempValues(1), tempValues(2)]
 # )
 
@@ -33,7 +33,7 @@ from util import produceGraph
 
 # produceGraph(
 #     model,
-#     'Baseline_model_TEMP1',
+#     'Baseline model_0',
 #     ['ssa'],
 #     [{'NaturalProteins': Proteins(folding='good'),
 #     'AggP': AggP()}, 
@@ -42,7 +42,7 @@ from util import produceGraph
 #     'ATP': ATP(),
 #     'ADP': ADP()},
 #     {'ROS': ROS()}],
-#     [tempValues(1)]
+#     [tempValues(0)]
 # )
 
 # produceGraph(
