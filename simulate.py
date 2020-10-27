@@ -2,6 +2,8 @@
 from util import produceGraph
 from base_model import *
 
+# Choose base_model or model base on what you want to run
+
 # produceGraph(
 #     model,
 #     'temperature comparison',
