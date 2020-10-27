@@ -5,8 +5,6 @@ from util import produceGraph, tempValues
 
 # instantiate a model
 Model()
-# TODO: protein degradation to the system
-# TODO: Use expression to control a few parameters
 
 # declare monomers
 Monomer('Proteins', ['b', 'Hbind' , 'folding'], {'folding': ['good', 'miss']})
@@ -17,6 +15,7 @@ Monomer('ADP')
 Monomer('AggP')
 Monomer('HSF1', ['b', 'b1', 'b2'])
 Monomer('HSE', ['b', 'b1'])
+##################################################################
 Monomer('Glutathione', ['state'], {'state': ['reduced','oxidised']})
 Monomer('sHSP', ['b', 'position'], {'position': ['mito', 'non_mito']})
 Monomer('MisP_sHSP_HSP90')
@@ -43,24 +42,22 @@ Parameter('HSE_0', 1)
 Initial(HSE(b=None, b1=None), HSE_0)
 #############################################
 # NewFeature sHSP + Glu + sHSP_GluE + OxyR
-Parameter('sHSP_0', 2000)
+Parameter('sHSP_0', 200)
 Initial(sHSP(b=None, position='mito'), sHSP_0)
-Parameter('Glutathione_0', 2000)
+Parameter('Glutathione_0', 100)
 Initial(Glutathione(state='reduced'), Glutathione_0)
 Initial(Glutathione(state='oxidised'), Glutathione_0)
-Parameter('sHSP_GluE_0', 2)
+Parameter('sHSP_GluE_0', 1)
 Initial(sHSP_GluE(DNA=None), sHSP_GluE_0)
-Parameter('OxyR_0', 2000)
+Parameter('OxyR_0', 10)
 Initial(OxyR(DNA=None, state='inactive'), OxyR_0)
 ######################################
 
 
 # now input the rules
-# TODO: Every Reaction that synthesize protein needs to expend ATP
-# TODO: Do we need to add OxyR production in the model as well
-Parameter('k1', 10) # mol s^-1
+Parameter('k1', 10) 
 Rule('Protein_Sythesis', ATP() >> Proteins(b=None, Hbind=None, folding='good') + ADP(), k1)
-Parameter('k2', 0.00002) # mol^-1 s^-1
+Parameter('k2', 0.00002) 
 Rule('Misfolding', Proteins(b=None, Hbind=None, folding='good') + ROS() >>
                 Proteins(b=None, Hbind=None, folding='miss') + ROS(), k2)
 Parameter('k3', 50.0)
@@ -72,6 +69,8 @@ Rule('Refolding', Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbin
             Proteins(b=None, Hbind=None, folding='good') + HSP90(b=None, Hbind=None) + ADP(), k5)
 Parameter('k6', 6*10**-7)
 Rule('Protein_degradation', Proteins(folding='miss') + ATP() >> ADP(), k6)
+Parameter('k100', 0.000001)
+Rule('Protein_degradation2', Proteins(folding='good') + ATP() >> ADP(), k100)
 Parameter('k7', 10**-7)
 Rule('Aggregation', Proteins(b=None, folding='miss') + Proteins(b=None, folding='miss') >> AggP(), k7)
 Parameter('k8', 500)
@@ -96,8 +95,6 @@ Parameter('k14', 0.05)
 Parameter('k15', 0.08)
 Rule('DNA_binding', HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=None, b2=1) + HSE(b1=None) |
             HSF1(b1=2, b2=None) % HSF1(b1=2, b2=1) % HSF1(b1=3, b2=1) % HSE(b1=3), k14, k15)
-# Assuming the transcription factor get of DNA after transcription & None basal Expression
-# Try 2 different ways see if there is any difference
 Parameter('k16', 1000)
 Rule('Transcription_Translation', HSF1(b1=2) % HSF1(b1=2, b2=1) % HSF1(b1=3, b2=1) % HSE(b1=3) >>
     HSF1(b=None, b1=None, b2=None) + HSF1(b=None, b1=None, b2=None) + HSF1(b=None, b1=None, b2=None)
@@ -110,7 +107,7 @@ Parameter('k18', 12)
 Rule('ATP_generation', ADP() >> ATP(), k18)
 Parameter('k19', 0.02)
 Rule('cellular_processes', ATP() >> ADP(), k19)
-Parameter('k20', 200)
+Parameter('k20', 0.1)
 Rule('ROS_production', None >> ROS(), k20)
 Parameter('k21', 0.001)
 Rule('ROS_scavenged', ROS() >> None, k21)
@@ -155,17 +152,3 @@ Rule('Glutathione_Synthetase_synthesis_from_DNA', OxyR(DNA=1, state='active') % 
 Parameter('k31', 5.0)
 Rule('Glu_Production', Glu_synthetase() >> Glu_synthetase() + Glutathione(state='reduced'), k31)
 ###########################################################################################################
-
-# try different simulate methods
-# try different values of k20 (temp)
-# try different values of protein synthesis
-# try different amounts of sHSP production
-# try
-# try with glutathionine enabled
-# try with
-
-# give a list of all the reactions you want to graph
-# a list of inital conditions, will use default if not present
-# a list of parameter (k) values
-#
-# model.add_component(Observable('obsNatP', model.monomers['Proteins'](folding='good')))
