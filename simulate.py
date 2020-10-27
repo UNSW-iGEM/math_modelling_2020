@@ -1,5 +1,6 @@
-from model import *
+# from model import *
 from util import produceGraph
+from base_model import *
 
 # produceGraph(
 #     model,
@@ -33,7 +34,7 @@ from util import produceGraph
 
 # produceGraph(
 #     model,
-#     'Baseline model_0',
+#     'Baseline_model_1',
 #     ['ssa'],
 #     [{'NaturalProteins': Proteins(folding='good'),
 #     'AggP': AggP()}, 
@@ -42,7 +43,7 @@ from util import produceGraph
 #     'ATP': ATP(),
 #     'ADP': ADP()},
 #     {'ROS': ROS()}],
-#     [tempValues(0)]
+#     [tempValues(1)]
 # )
 
 # produceGraph(
@@ -104,20 +105,20 @@ from util import produceGraph
 #     [tempValues(1)]
 # )
 
-produceGraph(
-    model,
-    'Glut_FrontLoad_model_TEMP1',
-    ['ssa'],
-    [{'NaturalProteins': Proteins(folding='good'),
-    'AggP': AggP()}, 
-    {'MisFoldProteins': Proteins(folding='miss'), 'sHSP': sHSP(b=None, position='mito'),
-    'MisP_sHSP': sHSP(b=1) % Proteins(b=1,folding='miss')},
-    {'MisP_Hsp90': Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1),
-    'ATP': ATP(),
-    'ADP': ADP()},
-    {'ROS': ROS(), 'Glutathione': Glutathione(state='oxidised')}],
-    [tempValues(1)]
-)
+# produceGraph(
+#     model,
+#     'Glut_FrontLoad_model_TEMP1',
+#     ['ssa'],
+#     [{'NaturalProteins': Proteins(folding='good'),
+#     'AggP': AggP()}, 
+#     {'MisFoldProteins': Proteins(folding='miss'), 'sHSP': sHSP(b=None, position='mito'),
+#     'MisP_sHSP': sHSP(b=1) % Proteins(b=1,folding='miss')},
+#     {'MisP_Hsp90': Proteins(b=None, Hbind=1, folding='miss') % HSP90(b=None, Hbind=1),
+#     'ATP': ATP(),
+#     'ADP': ADP()},
+#     {'ROS': ROS(), 'Glutathione': Glutathione(state='oxidised')}],
+#     [tempValues(1)]
+# )
 
 # produceGraph(
 #     model,
